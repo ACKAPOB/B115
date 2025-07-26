@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/ваш-репозиторий.git'
+                git branch: 'main', url: 'https://github.com/B115.git'
             }
         }
         stage('Run SQL Queries') {
