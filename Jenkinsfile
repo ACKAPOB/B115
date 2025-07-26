@@ -6,21 +6,27 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/ACKAPOB/B115'
-            }
-        }
-        stage('Run SQL Queries') {
-            steps {
-                script {
-                    def changedFiles = sh(script: "git diff --name-only HEAD HEAD~1", returnStdout: true).trim().split('\n')
-                    for (file in changedFiles) {
-                        if (file.endsWith('.sql')) {
-                            echo "Executing ${file}..."
-                            sh "mysql --user rfamro --host mysql-rfam-public.ebi.ac.uk --port 4497 --database Rfam < ${file} | tee output_${file}.txt"
-                            archiveArtifacts artifacts: "output_${file}.txt"
-                        }
-                    }
-                }
+                sh '''
+                    echo "Выполняем запросы..."
+                    
+                    # Создаем временные файлы для результатов
+                    SIMPLE_RESULT="output_simple_query.sql.txt"
+                    RAT_RESULT="output_rat_rna_query.sql.txt"
+                    
+                    # Выполняем запросы и сохраняем вывод
+                    mysql --user=rfamro --host=mysql-rfam-public.ebi.ac.uk --port=4497 Rfam -e "$(cat simple_query.sql)" > ${SIMPLE_RESULT}
+                    mysql --user=rfamro --host=mysql-rfam-public.ebi.ac.uk --port=4497 Rfam -e "$(cat rat_rna_query.sql)" > ${RAT_RESULT}
+                    
+                    # Проверяем результаты
+                    echo "=== Результаты запросов ==="
+                    cat ${SIMPLE_RESULT}
+                    cat ${RAT_RESULT}
+                    
+                    # Проверяем размер файлов
+                    echo "Размеры файлов:"
+                    ls -lah *.txt
+                '''
+                archiveArtifacts artifacts: 'output_*.txt'
             }
         }
     }
