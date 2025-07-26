@@ -1,10 +1,17 @@
 pipeline {
     agent any
     triggers {
-        pollSCM('* * * * *')  // Проверять изменения каждую минуту (можно заменить на webhook)
+       // pollSCM('* * * * *')  // Проверка изменений каждую минуту
     }
     stages {
         stage('Checkout') {
+            steps {
+                git branch: 'main', 
+                url: 'https://github.com/ACKAPOB/B115.git'
+                // credentialsId: 'ваш-токен' // Раскомментируйте для приватного репозитория
+            }
+        }
+        stage('Execute SQL') {
             steps {
                 sh '''
                     echo "Выполняем запросы..."
@@ -22,7 +29,6 @@ pipeline {
                     cat ${SIMPLE_RESULT}
                     cat ${RAT_RESULT}
                     
-                    # Проверяем размер файлов
                     echo "Размеры файлов:"
                     ls -lah *.txt
                 '''
