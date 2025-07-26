@@ -6,7 +6,7 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git branch: 'main', url: 'https://github.com/B115.git'
+                git branch: 'main', url: 'https://github.com/ACKAPOB/B115'
             }
         }
         stage('Run SQL Queries') {
